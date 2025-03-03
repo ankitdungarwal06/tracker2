@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  #MYSQL Database
+  mysql:
+    image: mysql:8.0.28
+    container_name: mysql_db_tracker
+    environment:
+      MYSQL_ROOT_PASSWORD: Ankit@1992
+      MYSQL_DATABASE: control
+      #MYSQL_USER: root
+      #MYSQL_PASSWORD: Ankit@1992
+    ports:
+      - "3006:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pAnkit@1992"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring_boot_tracker2
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/control?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Ankit@1992
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:

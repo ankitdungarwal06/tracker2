@@ -18,14 +18,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
-
     @Column(nullable = false)
     private String name;
 
-    @Column
-    private String phoneNumber;
+    @Column(nullable = false, unique = true)
+    private String email;
 
     @ManyToMany(mappedBy = "users")
     private Set<Note> notes = new HashSet<>();

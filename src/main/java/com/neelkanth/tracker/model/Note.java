@@ -1,6 +1,5 @@
 package com.neelkanth.tracker.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 @Entity
 @NoArgsConstructor
@@ -27,40 +25,38 @@ public class Note {
     private String content;
 
     @Column(columnDefinition = "TEXT")
-    private String emailContent; // To store the email content
+    private String emailContent;
 
-    @ElementCollection
-    private Set<String> hashtags = new HashSet<>(); // Hashtags for filtering
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "note_hashtags", joinColumns = @JoinColumn(name = "note_id"))
+    @Column(name = "hashtag")
+    private Set<String> hashtags = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "note_tag",
             joinColumns = @JoinColumn(name = "note_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
+    private Set<Tag> tags = new HashSet<>(); // No JsonManagedReference needed for POST
 
-    @ElementCollection
-    private Set<Tag> tags = new CopyOnWriteArraySet<>();
-
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "note_user",
             joinColumns = @JoinColumn(name = "note_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User> users = new HashSet<>(); // Many-to-many relationship with users
-
-    // Other necessary fields
-    @Column(nullable = false)
-    private boolean isArchived = false; // To archive notes
+    private Set<User> users = new HashSet<>();
 
     @Column(nullable = false)
-    private boolean isPinned = false; // To pin important notes
+    private boolean isArchived = false;
 
     @Column(nullable = false)
-    private String createdBy; // User who created the note
+    private boolean isPinned = false;
 
     @Column(nullable = false)
-    private String lastModifiedBy; // User who last modified the note
+    private String createdBy;
 
+    @Column(nullable = false)
+    private String lastModifiedBy;
 }

@@ -2,18 +2,18 @@ spring:
   application:
     name: tracker
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/control
-    username: root
-    password: Ankit@1992
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/control}  # Matches env var naming
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:Ankit@1992}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     generate-ddl: true
     show-sql: true
 
 server:
-  port: 8080
+  port: 8081
 
 gmail:
   username: "ankitdungarwal92@gmail.com"

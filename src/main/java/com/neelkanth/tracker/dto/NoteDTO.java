@@ -16,7 +16,8 @@ public class NoteDTO {
     private String content;
     private String emailContent;
     private Set<String> hashtags;
-    private Set<TagDTO> tags;
+    private Set<Long> tagIds;  // Use IDs instead of full Tag objects
+    private Set<Long> userIds; // Use IDs instead of full User objects
     private boolean isArchived;
     private boolean isPinned;
     private String createdBy;

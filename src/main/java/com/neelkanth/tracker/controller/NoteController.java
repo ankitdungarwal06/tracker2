@@ -3,15 +3,16 @@ package com.neelkanth.tracker.controller;
 import com.neelkanth.tracker.dto.NoteDTO;
 import com.neelkanth.tracker.model.Note;
 import com.neelkanth.tracker.model.Tag;
+import com.neelkanth.tracker.model.User;
 import com.neelkanth.tracker.repository.TagRepository;
+import com.neelkanth.tracker.repository.UserRepository;
 import com.neelkanth.tracker.service.NoteService;
 import com.neelkanth.tracker.utils.DTOConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @RestController(value = "/api")
 public class NoteController {
@@ -21,6 +22,9 @@ public class NoteController {
 
     @Autowired
     private TagRepository tagRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("/notes/")
     public ResponseEntity<List<Note>> getNote(){
@@ -34,12 +38,42 @@ public class NoteController {
     }
 
     @PostMapping("/note/")
-    public ResponseEntity<Note> saveNote(@RequestBody Note noteObject){
+    public ResponseEntity<Note> saveNote(@RequestBody NoteDTO noteDTO){
         System.out.print("******");
-        if( Objects.nonNull(noteObject.getTags())){
-           return ResponseEntity.ok(createNoteWithTag(noteObject, ""));
+        // Map DTO to entity
+        Note note = new Note();
+        note.setTitle(noteDTO.getTitle());
+        note.setContent(noteDTO.getContent());
+        note.setEmailContent(noteDTO.getEmailContent());
+        note.setHashtags(noteDTO.getHashtags());
+        note.setArchived(noteDTO.isArchived());
+        note.setPinned(noteDTO.isPinned());
+        note.setCreatedBy(noteDTO.getCreatedBy());
+        note.setLastModifiedBy(noteDTO.getLastModifiedBy());
+
+        // Handle tags
+        Set<Tag> tags = new HashSet<>();
+        if (noteDTO.getTagIds() != null) {
+            for (Long tagId : noteDTO.getTagIds()) {
+                Optional<Tag> tag = tagRepository.findById(tagId);
+                tag.ifPresent(tags::add);
+            }
         }
-        return ResponseEntity.ok(noteService.save(noteObject));
+        note.setTags(tags);
+
+        // Handle users
+        Set<User> users = new HashSet<>();
+        if (noteDTO.getUserIds() != null) {
+            for (Long userId : noteDTO.getUserIds()) {
+                Optional<User> user = userRepository.findById(userId);
+                user.ifPresent(users::add);
+            }
+        }
+        note.setUsers(users);
+
+        Note saved = noteService.save(note);
+        //log.info("Saved note with id: {}", saved.getId());
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/note/{id}/")

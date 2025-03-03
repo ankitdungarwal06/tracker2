@@ -29,7 +29,7 @@ public class DTOConverter {
             tagDTO.setName(tag.getName());
             tagDTOs.add(tagDTO);
         }
-        noteDTO.setTags(tagDTOs);
+       // noteDTO.setHashtags(tagDTOs);
 
         return noteDTO;
     }
